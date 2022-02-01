@@ -14,6 +14,13 @@ WSSNet predicts WSS vectors per time frame from 4D Flow MRI dataset. It allows a
     <img src="https://i.imgur.com/f7IdEhf.png" width="600">
 </p>
 
+# Package installation
+
+Install the wssnet as a package. 
+1. GO to the directory where the setup.py is located
+2. Run >> pip install -e .
+
+
 # Training setup 
 TBA
 ## Prepare dataset
