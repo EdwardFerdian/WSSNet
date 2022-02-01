@@ -7,21 +7,15 @@ from utility import augmentation as aug
 
 class CsvInputHandler():
     # constructor
-    def __init__(self, data_dir, use_augment, batch_size, use_vtan, use_vector):
+    def __init__(self, data_dir, use_augment, batch_size):
         self.batch_size = batch_size
         self.data_dir = data_dir
         self.scale_dist = 100
 
         self.use_augment = use_augment
-        self.use_vtan = use_vtan
-        self.use_vector = use_vector
-       
-        self.wall_coord  = 'xyz0'
         
-        if use_vector:
-            self.wss_colname = 'wss_vector'
-        else:
-            self.wss_colname = 'wss_clean'
+        self.wall_coord  = 'xyz0'
+        self.wss_colname = 'wss_vector'
         self.mask_colname = 'wss_mask'
 
     def initialize_dataset(self, indexes, shuffle, n_parallel=None):
@@ -111,9 +105,7 @@ class CsvInputHandler():
             xyz2 = aug.rotate(xyz2, randAngle, axis=randAxis)
             v1 = aug.rotate(v1, randAngle, axis=randAxis)
             v2 = aug.rotate(v2, randAngle, axis=randAxis)
-
-            if self.use_vector:
-                wss = aug.rotate(wss, randAngle, axis=randAxis)
+            wss = aug.rotate(wss, randAngle, axis=randAxis)
 
         return xyz0, xyz1, xyz2, v1, v2, wss
         
@@ -184,9 +176,6 @@ class CsvInputHandler():
         xyz2 /= self.scale_dist
 
         # prepare dynamic output list
-        if not self.use_vector:
-            wss = wss[..., tf.newaxis]
-
         output_list = [xyz0, xyz1, xyz2, v1, v2, wss, mask[..., tf.newaxis], idx]
 
         return output_list
@@ -204,15 +193,8 @@ class CsvInputHandler():
             xyz1 = hl.get(f'xyz{dist1}')[0]
             xyz2 = hl.get(f'xyz{dist2}')[0]
 
-            if self.use_vtan:
-                v1 = hl.get(f'vtan{dist1}')[row_idx]
-                v1 = np.expand_dims(v1, -1)
-
-                v2 = hl.get(f'vtan{dist2}')[row_idx]
-                v2 = np.expand_dims(v2, -1)
-            else:
-                v1 = hl.get(f'v{dist1}')[row_idx]
-                v2 = hl.get(f'v{dist2}')[row_idx]
+            v1 = hl.get(f'v{dist1}')[row_idx]
+            v2 = hl.get(f'v{dist2}')[row_idx]
             
             wss = hl.get(self.wss_colname)[row_idx]
             mask = hl.get(self.mask_colname)[0]

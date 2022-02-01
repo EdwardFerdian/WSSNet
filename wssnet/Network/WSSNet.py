@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 class WSSNet():
-    def build_network(self, input_layer, use_vector):
+    def build_network(self, input_layer):
         print('UNet BN')
         padding = 'SAME'
         channel_nr = 64
@@ -57,12 +57,9 @@ class WSSNet():
         conv7 = conv2d(merge7, kernel_size=3, filters=channel_nr, padding=padding, activation='relu')
         conv7 = conv2d(conv7, kernel_size=3, filters=channel_nr, padding=padding, activation='relu')
         
-        
-        if use_vector:
-            wss = conv2d(conv7, kernel_size=3, filters=3, padding=padding, activation=None)
-        else:
-            # WSS magnitude (1 channel)
-            wss = conv2d(conv7, kernel_size=3, filters=1, padding=padding, activation=None)
+        # output layer, 3 channels (vector)
+        wss = conv2d(conv7, kernel_size=3, filters=3, padding=padding, activation=None)
+    
         
         return wss
     

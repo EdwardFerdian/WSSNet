@@ -22,9 +22,6 @@ if __name__ == "__main__":
         model_dir  = "[model_dir]"
         model_file = "[model_name]-best.h5"
     
-    use_tangential_velocity = False
-    use_wss_vector = True
-
     # csv index file
     training_file = f'{config.DATA_DIR}/testval.csv'
     validate_file = f'{config.DATA_DIR}/testval.csv'
@@ -49,11 +46,11 @@ if __name__ == "__main__":
     
     # ----------------- TensorFlow stuff -------------------
     # TRAIN dataset iterator
-    z = CsvInputHandler(train_dir, True, batch_size, use_tangential_velocity, use_wss_vector)
+    z = CsvInputHandler(train_dir, True, batch_size)
     trainset = z.initialize_dataset(trainset, shuffle=True, n_parallel=None)
 
     # VALIDATION iterator
-    valdh = CsvInputHandler(val_dir, False, batch_size, use_tangential_velocity, use_wss_vector)
+    valdh = CsvInputHandler(val_dir, False, batch_size)
     valset = valdh.initialize_dataset(valset, shuffle=True, n_parallel=None)
 
     # # Bechmarking dataset, use to keep track of prediction progress per best model
@@ -61,7 +58,7 @@ if __name__ == "__main__":
     if QUICKSAVE and test_file is not None:
         testset = load_indexes(test_file)
         # WE use this bechmarking set so we can see the prediction progressing over time
-        ph = CsvInputHandler(test_dir, False, batch_size, use_tangential_velocity, use_wss_vector)
+        ph = CsvInputHandler(test_dir, False, batch_size)
         # No shuffling, so we can save the first batch consistently
         testset = ph.initialize_dataset(testset, shuffle=False) 
 
@@ -69,7 +66,7 @@ if __name__ == "__main__":
     
     # ------- Main Network ------
     print(f"Flat WSSNet {input_shape}, lr {initial_learning_rate}, batch {batch_size}")
-    network = TrainerController(input_shape, use_wss_vector, initial_learning_rate, lr_decay, QUICKSAVE, network_name, use_tangential_velocity)
+    network = TrainerController(input_shape, initial_learning_rate, lr_decay, QUICKSAVE, network_name)
     network.init_model_dir()
 
     if restore:

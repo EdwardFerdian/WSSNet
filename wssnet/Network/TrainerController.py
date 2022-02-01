@@ -19,7 +19,7 @@ import math
 
 class TrainerController:
     # constructor
-    def __init__(self, input_shape, use_vector, initial_learning_rate=1e-4, lr_decay=None, quicksave_enable=True, network_name='FlatMapWSS', use_tangential_velocity=False):
+    def __init__(self, input_shape, initial_learning_rate=1e-4, lr_decay=None, quicksave_enable=True, network_name='WSSNet'):
         """
             TrainerController constructor
             Setup all the placeholders, network graph, loss functions and optimizer here.
@@ -27,7 +27,6 @@ class TrainerController:
         # General param
         # Training params
         self.QUICKSAVE_ENABLED = quicksave_enable
-        self.use_vector = use_vector
         
         # Network
         self.network_name = network_name
@@ -44,19 +43,16 @@ class TrainerController:
         xyz1 = tf.keras.layers.Input(shape=input_shape + (3,), name='xyz1')
         xyz2 = tf.keras.layers.Input(shape=input_shape + (3,), name='xyz2')
 
-        if use_tangential_velocity:
-            v1 = tf.keras.layers.Input(shape=input_shape + (1,), name='v1')
-            v2 = tf.keras.layers.Input(shape=input_shape + (1,), name='v2')
-        else:
-            v1 = tf.keras.layers.Input(shape=input_shape + (3,), name='v1')
-            v2 = tf.keras.layers.Input(shape=input_shape + (3,), name='v2')
+    
+        v1 = tf.keras.layers.Input(shape=input_shape + (3,), name='v1')
+        v2 = tf.keras.layers.Input(shape=input_shape + (3,), name='v2')
 
         # prep input layer
         input_layer = [xyz0, xyz1, xyz2, v1, v2]
 
         # build the network        
         net = WSSNet()
-        self.predictions = net.build_network(input_layer, use_vector)
+        self.predictions = net.build_network(input_layer)
         self.model = tf.keras.Model(input_layer, self.predictions)
 
         # ===== Loss function =====
@@ -152,6 +148,8 @@ class TrainerController:
         return ssim_tf
 
     def loss_function(self, data_pairs, prediction_pairs):
+        eps = 1e-12
+
         pred_wss = prediction_pairs
         true_wss = data_pairs['wss']
 
@@ -163,15 +161,12 @@ class TrainerController:
         wss_diff = pred_wss - true_wss
         mae = tf.abs(wss_diff)
 
-        if self.use_vector:
-            eps = 1e-12
-            # if we don't add epsilon, sqrt can produce nan
-            true_wss = tf.sqrt(tf.reduce_sum(true_wss ** 2, axis=-1, keepdims=True) + eps)
-            pred_wss = tf.sqrt(tf.reduce_sum(pred_wss ** 2, axis=-1, keepdims=True) + eps)
+        # if we don't add epsilon, sqrt can produce nan
+        true_wss = tf.sqrt(tf.reduce_sum(true_wss ** 2, axis=-1, keepdims=True) + eps)
+        pred_wss = tf.sqrt(tf.reduce_sum(pred_wss ** 2, axis=-1, keepdims=True) + eps)
 
-            ssim = self.calculate_ssim(true_wss, pred_wss)
-        else:    
-            ssim = self.calculate_ssim(true_wss, pred_wss)
+        ssim = self.calculate_ssim(true_wss, pred_wss)
+    
 
         loss = tf.reduce_mean(mae) +  1.5 * (1-ssim)
         return loss, mae, ssim
