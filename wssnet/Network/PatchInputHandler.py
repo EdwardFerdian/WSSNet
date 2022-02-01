@@ -57,7 +57,7 @@ class PatchInputHandler():
         
     def unpatchify(self, imgs):
         """
-            Stich back the patches into flatmap/sheets
+            Stitch back the patches into flatmap/sheets
             If use averaging, the overlapping are will be averaged to avoid border artefact
         """
         if self.use_avg_patch:
