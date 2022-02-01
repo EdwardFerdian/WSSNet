@@ -64,7 +64,7 @@ if __name__ == '__main__':
     output_dir = f"{config.ROOT_DIR}/results"
     
     # Put your model .h5 here
-    model_path = f'{config.MODEL_DIR}/wssnet/wssnet-best.h5'
+    model_path = f'{config.MODEL_DIR}/wssnet/wssnet.h5'
 
 
     if not os.path.isdir(output_dir):

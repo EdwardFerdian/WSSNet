@@ -14,18 +14,18 @@ if __name__ == "__main__":
     data_dir = config.DATA_DIR
 
     train_dir = f'{data_dir}/train'
-    val_dir = f'{data_dir}/train'
-    test_dir = f'{data_dir}/train'
+    val_dir = f'{data_dir}/val'
+    test_dir = f'{data_dir}/test'
 
     restore = False
     if restore:
         model_dir  = "[model_dir]"
-        model_file = "[model_name]-best.h5"
+        model_file = "[model_name].h5"
     
     # csv index file
-    training_file = f'{config.DATA_DIR}/testval.csv'
-    validate_file = f'{config.DATA_DIR}/testval.csv'
-    test_file = f'{config.DATA_DIR}/testval.csv'
+    training_file = f'{config.DATA_DIR}/train.csv'
+    validate_file = f'{config.DATA_DIR}/val.csv'
+    test_file = f'{config.DATA_DIR}/test.csv'
     
     
     QUICKSAVE = True
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     batch_size = 16
 
     # Network setting
-    network_name = 'test'
+    network_name = 'wssnet'
     input_shape = (48,48)
     
     # Load data file and indexes
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     
     # ------- Main Network ------
-    print(f"Flat WSSNet {input_shape}, lr {initial_learning_rate}, batch {batch_size}")
+    print(f"WSSNet {input_shape}, lr {initial_learning_rate}, batch {batch_size}")
     network = TrainerController(input_shape, initial_learning_rate, lr_decay, QUICKSAVE, network_name)
     network.init_model_dir()
 
