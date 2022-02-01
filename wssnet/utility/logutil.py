@@ -1,9 +1,8 @@
 """
-This script mainly contains functions needed for logging
-Author: Edward Ferdian
-Date:   27/02/2019
+    This script mainly contains functions needed for logging
+    Author: Edward Ferdian
+    Date:   27/02/2019
 """
-from datetime import datetime
 from time import time
 
 def calculate_time_elapsed(start):

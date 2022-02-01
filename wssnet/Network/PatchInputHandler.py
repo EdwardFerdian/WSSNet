@@ -1,6 +1,5 @@
 import numpy as np
 import h5py
-from icecream import ic
 import matplotlib.pyplot as plt
 from random import randrange
 

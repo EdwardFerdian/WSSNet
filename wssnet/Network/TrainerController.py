@@ -12,8 +12,7 @@ import shutil
 import os
 import pickle
 from wssnet.Network.WSSNet import WSSNet
-from wssnet.Network import utility, h5util
-from icecream import ic
+from wssnet.utility import logutil, h5util
 import config
 import math
 
@@ -113,15 +112,15 @@ class TrainerController:
         # Prepare log file
         self.logfile = self.model_dir + '/loss.csv'
 
-        utility.log_to_file(self.logfile, f'Network: {self.network_name}\n')
-        utility.log_to_file(self.logfile, f'Initial learning rate: {self.learning_rate}\n')
-        utility.log_to_file(self.logfile, f'Accuracy metric: {self.accuracy_metric}\n')
-        utility.log_to_file(self.logfile, f'Lr_decay: {self.lr_decay}\n')
-        utility.log_to_file(self.logfile, f'L2_reg: {self.l2_weight}\n')
+        logutil.log_to_file(self.logfile, f'Network: {self.network_name}\n')
+        logutil.log_to_file(self.logfile, f'Initial learning rate: {self.learning_rate}\n')
+        logutil.log_to_file(self.logfile, f'Accuracy metric: {self.accuracy_metric}\n')
+        logutil.log_to_file(self.logfile, f'Lr_decay: {self.lr_decay}\n')
+        logutil.log_to_file(self.logfile, f'L2_reg: {self.l2_weight}\n')
         
         # Header
         stat_names = ','.join(self.loss_metrics.keys()) # train and val stat names
-        utility.log_to_file(self.logfile, f'epoch, {stat_names}, learning rate, elapsed (sec), best_model, benchmark_err\n')
+        logutil.log_to_file(self.logfile, f'epoch, {stat_names}, learning rate, elapsed (sec), best_model, benchmark_err\n')
         
 
         print("Copying source code to model directory...")
@@ -349,17 +348,17 @@ class TrainerController:
                     log_line += f', {quick_loss:.7f}'
             # Logging
             print(message)
-            utility.log_to_file(self.logfile, log_line+"\n")
+            logutil.log_to_file(self.logfile, log_line+"\n")
 
             # /END of epoch loop
 
         # End
-        hrs, mins, secs = utility.calculate_time_elapsed(start_time)
+        hrs, mins, secs = logutil.calculate_time_elapsed(start_time)
         message =  f"\nTraining {self.network_name} completed! - name: {self.unique_model_name}"
         message += f"\nTotal training time: {hrs} hrs {mins} mins {secs} secs."
         message += f"\nFinished at {time.ctime()}"
         message += f"\n==================== END TRAINING ================="
-        utility.log_to_file(self.logfile, message)
+        logutil.log_to_file(self.logfile, message)
         print(message)
         # Finish!
 
