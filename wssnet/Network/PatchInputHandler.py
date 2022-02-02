@@ -119,7 +119,6 @@ class PatchInputHandler():
         
         for i in range(0, len(xyz0_patches)):
             # Translate ref point
-            # pick reference point (x,y) = 0,0
             pos_x = 0
             pos_y = 0
             

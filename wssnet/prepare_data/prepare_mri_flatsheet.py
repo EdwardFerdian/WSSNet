@@ -136,6 +136,7 @@ def convert_grid_to_sheet(std_noise=0):
             pc1_normals, pc1_tangent = wss_utils.get_orthogonal_vectors(vector1, inward_normals)
             pc1_tangent_mag = wss_utils.get_vector_magnitude(pc1_tangent)
             
+            # optional: save tangential velocity (magnitude)
             # vtan = get_flatmap(pc1_tangent_mag)
             # h5util.save_to_h5(output_filepath, f"vtan{dists[i]}", vtan)
 
@@ -149,7 +150,7 @@ def convert_grid_to_sheet(std_noise=0):
         wss = gradients * viscosity
         wss_grid = mesh.fill_grid(wss)
 
-        # The |wss| has the same direction as v1_tan
+        # The |wss| is assumed to have the same direction as v1_tan
         # which means we can use v_tan with a certain multiplier to get there
         multiplier = wss / pc1_tangent_mag
         multiplier = np.nan_to_num(multiplier)

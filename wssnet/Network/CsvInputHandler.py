@@ -182,10 +182,9 @@ class CsvInputHandler():
     
     def load_sheet_data(self, hd5path, row_idx, dist1, dist2):
         '''
-            
+            Load data from HDF5
+            Data is in grid format already
         '''
-        # print('load_sheet_data', hd5path, row_idx, dist1, dist2)
-
         with h5py.File(hd5path, 'r') as hl:
             # TODO: change to row_idx later if necessary, right now 1 file for 1 wall coordinates
             xyz0 = hl.get(self.wall_coord)[0] 
