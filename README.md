@@ -22,7 +22,8 @@ The pre-trained network weights and training dataset are available
 Install the wssnet as a package. 
 1. GO to the directory where the setup.py is located
 2. Run >> pip install -e .
-3. Optional: open config.py to setup the directories. They have been predefined for you. The manual below is set based on these predefined directories.
+3. Run >> pip install -r requirements.txt
+4. Optional: open config.py to setup the directories. They have been predefined for you. The manual below is set based on these predefined directories.
 
 
 # Training setup 
