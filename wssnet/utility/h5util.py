@@ -2,14 +2,9 @@ import os
 import h5py
 import numpy as np
 
-def save_predictions(output_path, output_filename, col_name, dataset, auto_expand=False, compression=None):
-    if not os.path.isdir(output_path):
-        os.makedirs(output_path)
-
+def save_to_h5(output_filepath, col_name, dataset, auto_expand=True, compression=None):
     if auto_expand:
         dataset = np.expand_dims(dataset, axis=0)
-
-    output_filepath = os.path.join(output_path, output_filename)
 
     # convert float64 to float32 to save space
     if dataset.dtype == 'float64':
@@ -24,3 +19,10 @@ def save_predictions(output_path, output_filename, col_name, dataset, auto_expan
         else:
             hf[col_name].resize((hf[col_name].shape[0]) + dataset.shape[0], axis = 0)
             hf[col_name][-dataset.shape[0]:] = dataset
+
+def save_predictions(output_path, output_filename, col_name, dataset, auto_expand=False, compression=None):
+    if not os.path.isdir(output_path):
+        os.makedirs(output_path)
+    output_filepath = os.path.join(output_path, output_filename)
+
+    save_to_h5(output_filepath, col_name, dataset, auto_expand, compression)
