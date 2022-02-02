@@ -48,6 +48,12 @@ def get_flatmap(mesh, xyz_values):
 
 
 def convert_grid_to_sheet(std_noise=0):
+    """
+        Extract the surface coordinates from the registered mesh
+        Extract the velocity vectors based on the registered mesh
+
+        Convert the extracted points into the flatmap/sheets representation
+    """
     # 1. Load the mesh
     mesh = obc.ObjHandler(mesh_filename, rounding)
     mesh.stats()
@@ -114,7 +120,7 @@ def convert_grid_to_sheet(std_noise=0):
         # probe the velocity
         pc_tangents = []
 
-        # no slip condition (to calculate the WSS, we need to insert this)
+        # no slip condition (to calculate the WSS, we need to insert 0 velocity at wall)
         pc_tangents.append(np.zeros(len(pc1.points)))
 
         for i in range(0, nr_points):
@@ -149,19 +155,25 @@ def convert_grid_to_sheet(std_noise=0):
         multiplier = np.nan_to_num(multiplier)
         wss_vector = pc1_tangent * multiplier[:,np.newaxis]
 
+        # wss vector is assumed to have the same direction as v1
         wss_vector = get_flatmap(mesh, wss_vector)
 
         # ---- SAVE ---
-        h5util.save_to_h5(output_filepath, "wss_clean", wss_grid)
-        h5util.save_to_h5(output_filepath, "wss_vector", wss_vector)
+        h5util.save_to_h5(output_filepath, "wss_clean", wss_grid) # |wss|
+        h5util.save_to_h5(output_filepath, "wss_vector", wss_vector) # wss vector
     # as we don't have the masking for now, mark them all as valid regions
     h5util.save_to_h5(output_filepath, "wss_mask", np.ones(wss_grid.shape))
 
 
 if __name__ == "__main__": 
-    # Input/output filename
+    # ========== Input/output filename ========== 
+
+    # Input: Registered surface template
     mesh_filename = f'{config.ROOT_DIR}/examples/example_aorta_reg.obj'
+    # Input: Image grid file (velocity grid)
     input_filepath = f'{config.ROOT_DIR}/examples/example_grid.h5'
+
+    # Output: Coordinates and velocity sheets
     output_filepath = f'{config.ROOT_DIR}/examples/example_sheet.h5'
 
     # With actual MRI, if segmentation is performed on ITK-SNAP, the axis is rotated

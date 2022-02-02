@@ -77,6 +77,9 @@ class ObjHandler(object):
             
 
     def fill_grid(self, values):
+        """
+            Fill an image grid based on the uv coordinate index
+        """
         grid = self.uv_grid.copy()
 
         grid[self.uv_grid_index[:,0], self.uv_grid_index[:,1]] = values
@@ -119,22 +122,21 @@ class ObjHandler(object):
         return uvx_map
         
     def _generate_uv_grid(self):
+        """
+            Generate a flatmap from the UV coordinate map
+        """
         uvx = self.uvs[:,0]
         uvx_map = self._get_coord_map(uvx)
 
         uvy = self.uvs[:,1]
         uvy_map = self._get_coord_map(uvy)
             
-        # print(uvx_map, len(uvx_map))
-        # print(uvy_map, len(uvy_map))
-
         uv_index = self.uvs.copy()
         # get (x,y) grid index from the UV coordinates, per (row) index
         for uv_coord in uv_index:
             uv_coord[0] = uvx_map[uv_coord[0]]
             uv_coord[1] = uvy_map[uv_coord[1]]
-            # print(uv_coord)
-            # break
+            
         uv_index = uv_index.astype(int)
 
         # create the uv_grid
