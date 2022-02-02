@@ -26,33 +26,34 @@ Install the wssnet as a package.
 4. Optional: open config.py to setup the directories. They have been predefined for you. The manual below is set based on these predefined directories.
 
 
-# Training setup 
+# A. Training setup 
 1. Download the dataset from the [figshare website](https://auckland.figshare.com/articles/software/WSSNet_aortic_4D_Flow_MRI_wall_shear_stress_estimation_neural_network/19105067).
 2. Unpack it under "data" directory. 
 3. The "data" directory should contains 3 csv files, and 3 subfolders (train/val/test).
 4. Run the trainer.py
 >> Trainer will read the CSV files and load the file and row indexes based on the ones listed in CSV files. The setup has been predefined in the code.
 
-# Prediction setup 
+# B. Prediction setup 
 1.  Download the pre-trained weights from the [figshare website](https://auckland.figshare.com/articles/software/WSSNet_aortic_4D_Flow_MRI_wall_shear_stress_estimation_neural_network/19105067).
 2. Unpack it under "models" directory.
 3. Run predictor.py
->> Assuming the dataset have been downloaded, the prediction script will predict everything under the "data/test" directory.
+>> This will run a prediction of an example input file provided in the examples/ directory. Please refer to **section E** below for full description.
 
-# Prepare data
+# C. Prepare data
 We are using aortic surface template based on [Liang et al.'s work](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5630492/#R30). The original template was obtained from [here](https://github.com/TML-Gatech/DL_Stress_TAA) where it consists of 50x100 grid.
 
 We further modified the template (into 48x93) and performed UV unwrapping, which can be find in the templates directory.
 The template is used to register to patient-spesific geometry from segmentations.
 Registration was performed using [PyCPD](https://github.com/siavashk/pycpd). A modified version of the original code is already included in wssnet/pycpd directory.
-# Prepare your own training dataset
+# D. Prepare your own training dataset
 TBA
 
 
 
-# Running prediction on MRI data
-Some of the preparation steps are still manual. Please refer to the following steps.
-## Sort and build the mri data
+# E. Running prediction on MRI data
+Some of the preparation steps, such as segmentation are still manual. Please refer to the following steps.
+For some of the steps below, example files are provided in the examples/ directory.
+## 1. Sort and build the mri data
 To prepare 4D Flow MRI data to HDF5, go to the prepare_data/ directory and run the following script:
 
     >> python prepare_data.py --input-dir [4DFlowMRI_CASE_DIRECTORY]
@@ -70,8 +71,9 @@ Notes:
 * There must be exactly 3 Phase and 3 Magnitude directories. If you have only 1 magnitude directory, you need to adjust the code.
 * To get the required directory structure, [DicomSort](https://dicomsort.com/) is recommended. Sort by SeriesDescription -> TriggerTime.
 * In our case, VENC and velocity direction is read from the SequenceName DICOM HEADER. Code might need to be adjusted if the criteria is different.
+* For WSSNet, only Phase images are needed. This script is the same as the one in 4DFlowNet, where magnitude images are included.
 
-## Prepare aorta geometry
+## 2. Prepare aorta geometry
 For this step, some examples are already provided in the "examples" directory.
 1. Build a temporal max or mean PC-MRA (script not included)
 2. Segment the aorta without any branch and export as STL.    
@@ -83,19 +85,24 @@ Example provided **example_aorta.obj**
 5. Register the template mesh to the truncated mesh by running the *prepare_mesh/register_mesh.py*   
 The example of registered mesh provided as **example_aorta_reg.obj**
 
+## 3. Prepare coordinates and velocity sheets
+This step requires two files:
+* A 3D velocity image (see step 1). Example provided: **example_grid.h5**
+* Surface mesh (see step 2). Example provided: **example_aorta_reg.h5**
+
+To extract the coordinates and velocity sheets, run the *prepare_mri_sheet.py*.    
+Please fill in the input parameters accordingly. Predefined values have been set using the example files.
+<br/>
+Example output file provided: **example_sheet.h5**
 
 
-## Prepare data from MRI 
-
-TBA
-
-## Prediction
-
-TBA
 
 
 ## Contact Information
 
 If you encounter any problems in using the code, please open an issue in this repository or feel free to contact me by email.
 
-Author: Edward Ferdian (edwardferdian03@gmail.com).
+Author: Edward Ferdian
+
+Mail: e.ferdian@auckland.ac.nz
+| edwardferdian03@gmail.com

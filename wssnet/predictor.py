@@ -25,11 +25,12 @@ def prepare_network(input_shape):
 
     return model
 
-def predict_all_rows(dataset_file, scale_dist, distances):
+def predict_all_rows(dataset_file, distances):
     """
         Run predictions per row from an HDF5 file
 
     """
+    scale_dist = 100
     # prepare input
     with h5py.File(dataset_file, mode = 'r' ) as hdf5:
         len_indexes = len(hdf5['wss_vector'])
@@ -59,22 +60,23 @@ if __name__ == '__main__':
         Exampled script for prediction
     """
     # Put all your HDF5 input files here
-    input_dir  = f"{config.DATA_DIR}/test" 
+    input_dir  = f"{config.ROOT_DIR}/examples" 
     # Predictions will be saved here
-    output_dir = f"{config.ROOT_DIR}/results"
+    output_dir = f"{config.ROOT_DIR}/examples"
+
+    input_filename  = "example_sheet.h5"
+    output_filename = "example_prediction.h5"
     
     # Put your model .h5 here
     model_path = f'{config.MODEL_DIR}/wssnet/wssnet.h5'
-
 
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
     
    
     # Presets, modified if necessary
-    input_shape = (48,48)
-    scale_dist = 100
-    distances = [1.0, 2.0]
+    input_shape = (48,48) # patch size
+    distances = [1.0, 2.0] # in mm
 
     # Load the network
     print("Loading WSSNet")
@@ -82,21 +84,14 @@ if __name__ == '__main__':
     network = prepare_network(input_shape)
     network.load_weights(model_path)
 
-    # List all the case numbers
-    cases = np.arange(1, 80)
-    
-    for i in cases:
-        case_nr = f'{i:02}'
 
-        dataset_file = f"{input_dir}/ch{case_nr}_clean.h5"
-        output_filename = f'ch{case_nr}_prediction.h5'
+    dataset_file = f"{input_dir}/{input_filename}"
 
-        if not os.path.exists(dataset_file):
-            # print(f"Input file does not exists: {dataset_file}")
-            continue
-
-        print(f'Processing case {case_nr}')
+    if not os.path.exists(dataset_file):
+        print(f"Input file does not exists: {input_filename}")
+    else:
+        print(f'Processing case {input_filename}')
         print(distances)
         
         # read all the rows in the input file, and save it to output_dir/output_filename
-        predict_all_rows(dataset_file, scale_dist, distances)
+        predict_all_rows(dataset_file, distances)
