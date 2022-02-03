@@ -15,6 +15,21 @@ def get_flatmap(mesh, xyz_values):
     xyz = np.stack((x_grid,y_grid,z_grid), axis=-1)
     return xyz
 
+def get_wss_from_nearest_coords(ndx, wss_values):
+    n_points = len(wss_values)
+    closest_wss = []
+    for p in ndx:
+        # filter out the valid indexes
+        p = p[p < n_points] # this is because the KD tree returns index==n_points when it is not found
+
+        # probe the wss on the coordinate index
+        wss = wss_values[p]
+
+        if len(p) == 0:
+            closest_wss.append(np.nan)
+        else:
+            closest_wss.append(np.mean(wss))
+    return closest_wss
 
 def get_crack(img, use_median):
     """

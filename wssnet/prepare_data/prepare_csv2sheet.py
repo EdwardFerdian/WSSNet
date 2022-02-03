@@ -1,4 +1,4 @@
-from scipy.spatial import KDTree
+from scipy.spatial import Delaunay, KDTree
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.interpolate as sc
@@ -11,34 +11,19 @@ import ObjHandler as obc
 from CFDResult import CFDResult
 import data_util as du
 
-def get_wss_from_nearest_coords(ndx, wss_values):
-    n_points = len(wss_values)
-    closest_wss = []
-    for p in ndx:
-        # filter out the valid indexes
-        p = p[p < n_points] # this is because the KD tree returns index==n_points when it is not found
-
-        # probe the wss on the coordinate index
-        wss = wss_values[p]
-
-        if len(p) == 0:
-            closest_wss.append(np.nan)
-        else:
-            closest_wss.append(np.mean(wss))
-    return closest_wss
-
 if __name__ == "__main__":
     mesh_file = f'{config.ROOT_DIR}/examples/example_aorta_reg.obj'
     csv_dir   = f'{config.ROOT_DIR}/examples/csv'
     
-    output_filepath = f'{csv_dir}/test.h5'
+    output_filepath = f'{csv_dir}/test_sheet.h5'
 
     # file prefix
     prefix = 'export'
     
+    # start, end and step (depending on your export files)
     t_start = 10
-    t_step = 10
     t_end = 30
+    t_step = 10
 
     # filename format
     csv_wall_file = f'{prefix}_wall-{t_start:04}'
@@ -94,6 +79,20 @@ if __name__ == "__main__":
     wss_mask  = dist_grid <= mask_dist_threshold
     h5util.save_to_h5(output_filepath, "wss_mask", wss_mask)
     
+    # ======== Preload and triangulate ======== 
+    velocity_file = f'{csv_dir}/{prefix}-{t_start:04}'
+    vel_cfd_res = CFDResult(velocity_file, rounding, False, False)
+    # Reshape xyz coordinates
+    v_coords = np.stack((vel_cfd_res.x, vel_cfd_res.y, vel_cfd_res.z), axis=-1)
+
+    # Triangulate once
+    # https://stackoverflow.com/questions/51858194/storing-the-weights-used-by-scipy-griddata-for-re-use/51937990
+    # https://stackoverflow.com/questions/20915502/speedup-scipy-griddata-for-multiple-interpolations-between-two-irregular-grids
+    start_time = time.time()
+    tri = Delaunay(v_coords)  # Compute the triangulation once for massive speedup
+    print(f"Delaunay triangulation: {(time.time()-start_time):.1f} sec")
+
+    # ======== iterate through time frames ===============
     row_index = 0
     first_row = True
     for i in range(t_start,t_end, t_step):    
@@ -107,7 +106,7 @@ if __name__ == "__main__":
         wall_cfd_res = CFDResult(csv_file, rounding, True, False)
 
         # Fill in to grid
-        closest_wss = get_wss_from_nearest_coords(ndx, wall_cfd_res.wss)
+        closest_wss = du.get_wss_from_nearest_coords(ndx, wall_cfd_res.wss)
         wss_grid = mesh.fill_grid(closest_wss)
         wss_grid = np.nan_to_num(wss_grid)
         
@@ -121,15 +120,15 @@ if __name__ == "__main__":
             plt.show()
         
         # --- wss x
-        wss_grid = get_wss_from_nearest_coords(ndx, wall_cfd_res.wssx)
+        wss_grid = du.get_wss_from_nearest_coords(ndx, wall_cfd_res.wssx)
         wssx = mesh.fill_grid(wss_grid)
         
         # --- wss y
-        wss_grid = get_wss_from_nearest_coords(ndx, wall_cfd_res.wssy)
+        wss_grid = du.get_wss_from_nearest_coords(ndx, wall_cfd_res.wssy)
         wssy = mesh.fill_grid(wss_grid)
         
         # --- wss z
-        wss_grid = get_wss_from_nearest_coords(ndx, wall_cfd_res.wssz)
+        wss_grid = du.get_wss_from_nearest_coords(ndx, wall_cfd_res.wssz)
         wssz = mesh.fill_grid(wss_grid)
                 
         # stack them to 3 channel
@@ -144,14 +143,11 @@ if __name__ == "__main__":
         # Load the velocity data
         vel_cfd_res = CFDResult(velocity_file, rounding, False, True)
 
-        # Reshape xyz coordinates
-        v_coords = np.stack((vel_cfd_res.x, vel_cfd_res.y, vel_cfd_res.z), axis=-1)
-        
         # Prepare interpolator
         print("Preparing velocity interpolation")
-        interpolator_vx = sc.LinearNDInterpolator(v_coords, vel_cfd_res.vx)
-        interpolator_vy = sc.LinearNDInterpolator(v_coords, vel_cfd_res.vy)
-        interpolator_vz = sc.LinearNDInterpolator(v_coords, vel_cfd_res.vz)
+        interpolator_vx = sc.LinearNDInterpolator(tri, vel_cfd_res.vx)
+        interpolator_vy = sc.LinearNDInterpolator(tri, vel_cfd_res.vy)
+        interpolator_vz = sc.LinearNDInterpolator(tri, vel_cfd_res.vz)
 
         # Prepare probe points for velocity
         for j, dist in enumerate(probe_dist):
