@@ -44,11 +44,23 @@ We are using aortic surface template based on [Liang et al.'s work](https://www.
 
 We further modified the template (into 48x93) and performed UV unwrapping, which can be find in the templates directory.
 The template is used to register to patient-spesific geometry from segmentations.
-Registration was performed using [PyCPD](https://github.com/siavashk/pycpd). A modified version of the original code is already included in wssnet/pycpd directory.
+Registration was performed using [PyCPD](https://github.com/siavashk/pycpd). A modified version of the code is already included in wssnet/pycpd directory.
 # D. Prepare your own training dataset
-TBA
+This is an example on how to prepare the WSS and velocity 'sheets' from CSV files (exported from CFD simulations). Example csv files can be downloaded from the [figshare website](https://auckland.figshare.com/articles/software/WSSNet_aortic_4D_Flow_MRI_wall_shear_stress_estimation_neural_network/19105067).
 
+Note:
+1. Each time frame in the simulation is exported as a single csv file. We split the csv file into 2 parts:
+    - **export-{time_index}.csv**: contains the mesh coordinates (x,y,z) and velocity at the corresponding coordinates (vx, vy, vz, |v|)
+    - **export_wall-{time_index}.csv**: contains the wall coordinates (x, y, z) and wall shear stress at the corresponding coordinates (wssx, wssy, wssz, |wss|)
 
+Prepare velocity sheets directly from csv files:
+- Directly run the prepare_csv2sheet.py script using the predefined value
+
+Prepare velocity sheets from an interpolated grid:
+- Run the prepare_csv2grid.py script using the predefined value
+- Run the prepare_mri_sheet.py script (see **Section E-3**)
+
+Extracting this data into sheets also require the geometry. An example geometry is provided. See **Section E-2.5**
 
 # E. Running prediction on MRI data
 Some of the preparation steps, such as segmentation are still manual. Please refer to the following steps.
@@ -96,7 +108,9 @@ Please fill in the input parameters accordingly. Predefined values have been set
 Example output file provided: **example_sheet.h5**
 
 
+# F. Visualization
 
+TBA
 
 ## Contact Information
 
