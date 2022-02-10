@@ -109,8 +109,21 @@ Example output file provided: **example_sheet.h5**
 
 
 # F. Visualization
+Under visualize, we provided 3 example scripts:
+- *plot_tawss_osi_flatmap.py* to plot TAWSS and OSI as 2D flatmaps
+- *plot_tawss_osi_3d.py* to plot TAWSS and OSI in 3D point clouds
+<p align="middle">
+    <img src="https://i.imgur.com/ciijrxh.png" width="300">
+</p>
+- *plot_wss_3d.py* to plot WSS with a slider through time frames
+<p align="middle">
+    <img src="https://i.imgur.com/cmTWCnm.png" width="300">
+</p>
 
-TBA
+
+An example prediction result file is provided in: **examples/case70_prediction.h5**
+
+TODO: Plot as 3D surface instead of point clouds
 
 ## Contact Information
 
