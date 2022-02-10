@@ -26,7 +26,7 @@ if __name__ == '__main__':
     wss_color = 'inferno'
     osi_color = 'viridis'
     
-    print('MAE std rel ssim ssim_norm pearson')
+    print('MAE std rel ssim pearson')
     dt = 4e-2 # time in seconds
 
     img_dir = f'{config.ROOT_DIR}/images'
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         os.makedirs(img_dir)
 
     
-    hd5path = f"{config.ROOT_DIR}/examples/example_prediction.h5"
+    hd5path = f"{config.ROOT_DIR}/examples/case70_prediction.h5"
 
     
     if not os.path.exists(hd5path):
@@ -63,37 +63,34 @@ if __name__ == '__main__':
         tawss_rel  = 100 * tawss_diff / (tawss_gt + eps)
 
         # calculate ssim
-        ssim_noise = ssim(tawss_gt, tawss_pred,
+        ssim_tawss = ssim(tawss_gt, tawss_pred,
                     data_range=tawss_gt.max() - tawss_gt.min())
+
+        ssim_osi = ssim(osi_true, osi_pred,
+            data_range=0.5)
 
         # calculate pearson correlation
         r = pearson(tawss_pred, tawss_gt)
 
-        tawss_gt_norm = tawss_gt / np.max(tawss_gt)
-        tawss_pred_norm = tawss_pred / np.max(tawss_pred)
-        ssim_norm =  ssim(tawss_gt_norm, tawss_pred_norm,
-                    data_range=1)
-
         # print stats        
-        print(np.mean(tawss_diff), np.std(tawss_diff), np.mean(tawss_rel), ssim_noise, ssim_norm, r)
+        print(np.mean(tawss_diff), np.std(tawss_diff), np.mean(tawss_rel), ssim_tawss, r)
 
         # show image
         plt.subplots_adjust(left=.01, bottom=0.01, right=0.99, top=.95, wspace=0.01, hspace=0.05)
 
         maxval = 12
         plt.subplot(221), plt.imshow(tawss_pred, cmap=wss_color, clim=[0, maxval])
-        plt.title(f'TAWSS ({r:.2f})')
+        plt.title(f'TAWSS (SSIM {ssim_tawss:.2f})')
         plt.xticks([]), plt.yticks([])
         plt.colorbar()
 
-        maxval = 4
         plt.subplot(222), plt.imshow(tawss_gt, cmap=wss_color, clim=[0,maxval])
         plt.title('TAWSS GT')
         plt.xticks([]), plt.yticks([])
         plt.colorbar()
 
         plt.subplot(223), plt.imshow(osi_pred, cmap=osi_color, clim=[0, 0.5])
-        plt.title('OSI pred')
+        plt.title(f'OSI pred (SSIM {ssim_osi:.2f})')
         plt.xticks([]), plt.yticks([])
         plt.colorbar()
 

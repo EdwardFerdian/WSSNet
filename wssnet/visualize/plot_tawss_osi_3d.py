@@ -12,7 +12,7 @@ if __name__ == '__main__':
     
     dt = 4e-2 # time in seconds
 
-    hd5path = f"{config.ROOT_DIR}/examples/example_prediction.h5"
+    hd5path = f"{config.ROOT_DIR}/examples/case70_prediction.h5"
 
     
     if not os.path.exists(hd5path):
