@@ -53,7 +53,8 @@ class PatchInputHandler():
             patches.append(patch)
 
             patch_start += self.patch_size
-        return patches
+        # [nr_patch, patch_size, patch_size, 3]
+        return np.array(patches)
         
     def unpatchify(self, imgs):
         """
